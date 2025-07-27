@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengubah Ukuran Gambar Massal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- JSZip CDN for creating zip files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- FileSaver.js CDN for saving files (used by JSZip) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* Custom styles for Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Hide the default file input button */
+        input[type="file"] {
+            display: none;
+        }
+        /* Style for the custom file input label */
+        .custom-file-upload {
+            border: 2px dashed #cbd5e1; /* slate-300 */
+            border-radius: 0.5rem; /* rounded-lg */
+            padding: 1rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+        }
+        .custom-file-upload:hover {
+            border-color: #94a3b8; /* slate-400 */
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: #6366f1; /* indigo-500 */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Pengubah Ukuran Gambar Massal</h1>
+
+        <!-- File Input Section -->
+        <div class="mb-6">
+            <label for="imageUpload" class="custom-file-upload block text-gray-700 font-medium mb-2">
+                <span class="text-indigo-600 hover:text-indigo-800 transition duration-200">Pilih Gambar</span>
+                <p class="text-sm text-gray-500 mt-1">Seret & lepas atau klik untuk memilih beberapa file gambar.</p>
+            </label>
+            <input type="file" id="imageUpload" accept="image/*" multiple class="hidden">
+            <p id="fileCount" class="text-sm text-gray-600 mt-2 text-center"></p>
+        </div>
+
+        <!-- Resolution Selection Section -->
+        <div class="mb-4">
+            <label for="resolutionSelect" class="block text-gray-700 text-sm font-bold mb-2">
+                Pilih Resolusi:
+            </label>
+            <select id="resolutionSelect"
+                    class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <option value="custom">Kustom (Masukkan Lebar)</option>
+                <option value="1280">HD (1280px)</option>
+                <option value="1920">FHD (1920px)</option>
+                <option value="2048">2K (2048px)</option>
+                <option value="2560">QHD (2560px)</option>
+                <option value="3840">4K (3840px)</option>
+            </select>
+        </div>
+
+        <!-- Width Input Section -->
+        <div class="mb-6">
+            <label for="newWidth" class="block text-gray-700 text-sm font-bold mb-2">
+                Lebar Kustom (piksel):
+            </label>
+            <input type="number" id="newWidth" value="800" min="1"
+                   class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+        </div>
+
+        <!-- Resize Button -->
+        <button id="resizeBtn"
+                class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+            <span id="buttonText">Ubah Ukuran & Unduh ZIP</span>
+            <span id="loadingSpinner" class="loading-spinner hidden"></span>
+        </button>
+
+        <!-- Message Display Area -->
+        <div id="message" class="mt-6 text-center text-gray-700 text-sm"></div>
+
+        <!-- Preview Area (Optional) -->
+        <div id="previewContainer" class="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <!-- Resized image previews will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const imageUpload = document.getElementById('imageUpload');
+        const newWidthInput = document.getElementById('newWidth');
+        const resolutionSelect = document.getElementById('resolutionSelect');
+        const resizeBtn = document.getElementById('resizeBtn');
+        const buttonText = document.getElementById('buttonText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const messageDiv = document.getElementById('message');
+        const fileCountParagraph = document.getElementById('fileCount');
+        const previewContainer = document.getElementById('previewContainer');
+
+        let selectedFiles = []; // Array to store selected image files
+        let failedFiles = []; // Array to store names of files that failed processing
+
+        // Event listener for file input change
+        imageUpload.addEventListener('change', (event) => {
+            selectedFiles = Array.from(event.target.files); // Convert FileList to Array
+            if (selectedFiles.length > 0) {
+                fileCountParagraph.textContent = `${selectedFiles.length} file dipilih.`;
+                messageDiv.textContent = ''; // Clear any previous messages
+                previewContainer.innerHTML = ''; // Clear previous previews
+                failedFiles = []; // Reset failed files list
+            } else {
+                fileCountParagraph.textContent = '';
+            }
+        });
+
+        // Event listener for drag and drop
+        const customFileUpload = document.querySelector('.custom-file-upload');
+        customFileUpload.addEventListener('dragover', (event) => {
+            event.preventDefault(); // Prevent default to allow drop
+            customFileUpload.classList.add('border-indigo-500', 'bg-indigo-50');
+        });
+
+        customFileUpload.addEventListener('dragleave', () => {
+            customFileUpload.classList.remove('border-indigo-500', 'bg-indigo-50');
+        });
+
+        customFileUpload.addEventListener('drop', (event) => {
+            event.preventDefault(); // Prevent default to allow drop
+            customFileUpload.classList.remove('border-indigo-500', 'bg-indigo-50');
+            selectedFiles = Array.from(event.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+            if (selectedFiles.length > 0) {
+                fileCountParagraph.textContent = `${selectedFiles.length} file dipilih.`;
+                messageDiv.textContent = '';
+                previewContainer.innerHTML = '';
+                failedFiles = []; // Reset failed files list
+                // Assign files to the input element (optional, but good practice if you want to re-use input)
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                imageUpload.files = dataTransfer.files;
+            } else {
+                fileCountParagraph.textContent = '';
+            }
+        });
+
+        // Event listener for resolution select change
+        resolutionSelect.addEventListener('change', (event) => {
+            const selectedValue = event.target.value;
+            if (selectedValue === 'custom') {
+                newWidthInput.disabled = false; // Enable custom width input
+                newWidthInput.value = '800'; // Reset to a default custom value
+            } else {
+                newWidthInput.disabled = true; // Disable custom width input
+                newWidthInput.value = selectedValue; // Set width from selected resolution
+            }
+        });
+
+        // Initialize input state based on default select value
+        resolutionSelect.dispatchEvent(new Event('change'));
+
+
+        // Event listener for resize button click
+        resizeBtn.addEventListener('click', async () => {
+            let targetWidth;
+            const selectedResolution = resolutionSelect.value;
+
+            if (selectedResolution === 'custom') {
+                targetWidth = parseInt(newWidthInput.value);
+            } else {
+                targetWidth = parseInt(selectedResolution);
+            }
+
+            // Validate inputs
+            if (selectedFiles.length === 0) {
+                messageDiv.textContent = 'Silakan pilih setidaknya satu gambar terlebih dahulu.';
+                messageDiv.classList.add('text-red-500');
+                return;
+            }
+            if (isNaN(targetWidth) || targetWidth <= 0) {
+                messageDiv.textContent = 'Silakan masukkan lebar yang valid (angka positif).';
+                messageDiv.classList.add('text-red-500');
+                return;
+            }
+
+            messageDiv.textContent = 'Memproses gambar... Ini mungkin memakan waktu beberapa saat.';
+            messageDiv.classList.remove('text-red-500', 'text-green-600', 'text-orange-500'); // Clear all previous status colors
+            messageDiv.classList.add('text-blue-600');
+            resizeBtn.disabled = true; // Disable button during processing
+            buttonText.classList.add('hidden'); // Hide button text
+            loadingSpinner.classList.remove('hidden'); // Show loading spinner
+            previewContainer.innerHTML = ''; // Clear previous previews
+            failedFiles = []; // Reset failed files list for new processing batch
+
+            const resizedImages = []; // Array to store resized image data for zipping
+            let processedCount = 0;
+
+            for (const file of selectedFiles) {
+                try {
+                    // Add a small delay between processing each image
+                    await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay
+                    const resizedData = await resizeImage(file, targetWidth); // Renamed function, no direct download
+                    resizedImages.push(resizedData);
+                    processedCount++;
+                    messageDiv.textContent = `Memproses gambar... (${processedCount}/${selectedFiles.length} selesai)`;
+                } catch (error) {
+                    console.error(`Gagal memproses ${file.name}:`, error);
+                    failedFiles.push(`${file.name} (${error.message || 'unknown error'})`); // Add error message to failed file
+                    // Do NOT break the loop, continue with other files
+                }
+            }
+
+            if (processedCount > 0) {
+                messageDiv.textContent = `Menggabungkan ${processedCount} gambar ke dalam file ZIP...`;
+                messageDiv.classList.remove('text-blue-600');
+                messageDiv.classList.add('text-indigo-600'); // New status color for zipping
+
+                const zip = new JSZip();
+                resizedImages.forEach(img => {
+                    // Remove "data:image/png;base64," prefix for JSZip
+                    const base64Data = img.dataUrl.split(',')[1];
+                    zip.file(img.fileName, base64Data, { base64: true });
+                });
+
+                try {
+                    const zipBlob = await zip.generateAsync({ type: "blob" });
+                    saveAs(zipBlob, `gambar_diubah_ukuran_${targetWidth}px.zip`); // Trigger single ZIP download
+
+                    if (failedFiles.length === 0) {
+                        messageDiv.textContent = 'Semua gambar berhasil diubah ukurannya dan diunduh sebagai ZIP!';
+                        messageDiv.classList.remove('text-indigo-600');
+                        messageDiv.classList.add('text-green-600');
+                    } else {
+                        messageDiv.textContent = `Selesai! ${processedCount} gambar berhasil diubah ukurannya dan diunduh sebagai ZIP. Gagal memproses: ${failedFiles.join(', ')}.`;
+                        messageDiv.classList.remove('text-indigo-600');
+                        messageDiv.classList.add('text-orange-500'); // Indicate partial success/some failures
+                    }
+                } catch (zipError) {
+                    console.error("Gagal membuat atau mengunduh file ZIP:", zipError);
+                    messageDiv.textContent = `Terjadi kesalahan saat membuat atau mengunduh file ZIP. Gagal memproses: ${failedFiles.join(', ')}.`;
+                    messageDiv.classList.remove('text-indigo-600');
+                    messageDiv.classList.add('text-red-500');
+                }
+            } else {
+                messageDiv.textContent = `Gagal memproses semua gambar: ${failedFiles.join(', ')}. Cek konsol browser untuk detail lebih lanjut.`;
+                messageDiv.classList.remove('text-blue-600');
+                messageDiv.classList.add('text-red-500');
+            }
+
+            resizeBtn.disabled = false; // Re-enable button
+            buttonText.classList.remove('hidden'); // Show button text
+            loadingSpinner.classList.add('hidden'); // Hide loading spinner
+        });
+
+        /**
+         * Resizes an image and returns its data URL and new file name.
+         * This function no longer triggers a download directly.
+         * @param {File} file - The image file to resize.
+         * @param {number} newWidth - The desired new width in pixels.
+         * @returns {Promise<{dataUrl: string, fileName: string}>} - Resolves with the resized image data URL and file name.
+         */
+        function resizeImage(file, newWidth) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = (readerEvent) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Explicitly check if image loaded with valid dimensions
+                        if (img.width === 0 || img.height === 0) {
+                            // Clean up memory from the image object if it's invalid
+                            URL.revokeObjectURL(img.src);
+                            reject(new Error(`Gambar tidak valid atau kosong (lebar/tinggi 0).`));
+                            return;
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Calculate new height to maintain aspect ratio
+                        const aspectRatio = img.width / img.height;
+                        const newHeight = newWidth / aspectRatio;
+
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
+
+                        // Draw image on canvas
+                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                        // Get image data URL
+                        // Ensure the type is supported by toDataURL, default to 'image/png' if not
+                        const outputMimeType = file.type.startsWith('image/') ? file.type : 'image/png';
+                        let dataUrl;
+                        try {
+                            // For JPEG and WebP, a quality parameter can be provided (0.0 to 1.0)
+                            // For PNG, this parameter is ignored.
+                            dataUrl = canvas.toDataURL(outputMimeType, 0.9);
+                        } catch (e) {
+                            // Clean up memory from the image object and canvas
+                            URL.revokeObjectURL(img.src);
+                            canvas.width = canvas.height = 0; // Clear canvas memory
+                            reject(new Error(`Gagal mengonversi gambar ke data URL. Mungkin masalah format atau memori: ${e.message}`));
+                            return;
+                        }
+
+                        // Clean up memory from the image object and canvas after successful processing
+                        URL.revokeObjectURL(img.src);
+                        canvas.width = canvas.height = 0; // Clear canvas memory
+
+                        // Add preview to the container
+                        const previewImg = document.createElement('img');
+                        previewImg.src = dataUrl;
+                        previewImg.alt = `Pratinjau ${file.name}`;
+                        previewImg.classList.add('w-full', 'h-auto', 'rounded-lg', 'shadow-md', 'object-contain');
+
+                        const previewItem = document.createElement('div');
+                        previewItem.classList.add('flex', 'flex-col', 'items-center', 'space-y-2');
+                        previewItem.appendChild(previewImg);
+                        const originalFileName = file.name.split('.').slice(0, -1).join('.');
+                        const fileExtension = file.name.split('.').pop();
+                        const newFileName = `${originalFileName}_${newWidth}px.${fileExtension}`;
+                        const fileNameSpan = document.createElement('span');
+                        fileNameSpan.textContent = newFileName;
+                        fileNameSpan.classList.add('text-xs', 'text-gray-600', 'truncate', 'w-full', 'text-center');
+                        previewItem.appendChild(fileNameSpan);
+
+                        previewContainer.appendChild(previewItem);
+
+                        resolve({ dataUrl, fileName: newFileName }); // Return dataUrl and new file name
+                    };
+                    img.onerror = (error) => {
+                        // Clean up memory from the image object if it fails to load
+                        if (readerEvent.target && readerEvent.target.result) {
+                            URL.revokeObjectURL(readerEvent.target.result); // If it was a Blob URL
+                        }
+                        reject(new Error(`Gagal memuat gambar. File mungkin rusak, tidak didukung, atau terlalu besar.`));
+                    };
+                    // Use createObjectURL for potentially better memory management with large files
+                    const imgUrl = URL.createObjectURL(file);
+                    img.src = imgUrl;
+                    // The revokeObjectURL for imgUrl is now done in onload/onerror to ensure image is used first
+                };
+                reader.onerror = (error) => {
+                    reject(new Error(`Gagal membaca file. Mungkin masalah izin atau file rusak: ${error.message}`));
+                };
+                reader.readAsDataURL(file); // Read file as data URL
+            });
+        }
+    </script>
+</body>
+</html>
