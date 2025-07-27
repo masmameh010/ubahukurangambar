@@ -217,7 +217,8 @@
                 const file = selectedFiles[i];
                 try {
                     // Add a small delay between processing each image
-                    await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay
+                    // Increased delay to give more time for garbage collection on mobile
+                    await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay
 
                     // Generate a unique base name for the file within this batch
                     let originalFileNameBase = file.name.split('.').slice(0, -1).join('.');
@@ -295,89 +296,87 @@
          */
         function resizeImage(file, newWidth, uniqueBaseName) {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
+                const img = new Image();
+                let objectURL; // To store the URL created by createObjectURL
 
-                reader.onload = (readerEvent) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        // Explicitly check if image loaded with valid dimensions
-                        if (img.width === 0 || img.height === 0) {
-                            // Clean up memory from the image object if it's invalid
-                            URL.revokeObjectURL(img.src);
-                            reject(new Error(`Gambar tidak valid atau kosong (lebar/tinggi 0).`));
-                            return;
-                        }
+                img.onload = () => {
+                    // Revoke the object URL as soon as the image is loaded into the Image object
+                    // This frees up the Blob/File reference in memory. CRITICAL for memory management.
+                    if (objectURL) {
+                        URL.revokeObjectURL(objectURL);
+                    }
 
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
+                    // Explicitly check if image loaded with valid dimensions
+                    if (img.width === 0 || img.height === 0) {
+                        reject(new Error(`Gambar tidak valid atau kosong (lebar/tinggi 0).`));
+                        return;
+                    }
 
-                        // Calculate new height to maintain aspect ratio
-                        const aspectRatio = img.width / img.height;
-                        const newHeight = newWidth / aspectRatio;
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
 
-                        canvas.width = newWidth;
-                        canvas.height = newHeight;
+                    // Calculate new height to maintain aspect ratio
+                    const aspectRatio = img.width / img.height;
+                    const newHeight = newWidth / aspectRatio;
 
-                        // Draw image on canvas
-                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                    canvas.width = newWidth;
+                    canvas.height = newHeight;
 
-                        // Get image data URL
-                        // Ensure the type is supported by toDataURL, default to 'image/png' if not
-                        const outputMimeType = file.type.startsWith('image/') ? file.type : 'image/png';
-                        let dataUrl;
-                        try {
-                            // For JPEG and WebP, a quality parameter can be provided (0.0 to 1.0)
-                            // For PNG, this parameter is ignored.
-                            dataUrl = canvas.toDataURL(outputMimeType, 0.9);
-                        } catch (e) {
-                            // Clean up memory from the image object and canvas
-                            URL.revokeObjectURL(img.src);
-                            canvas.width = canvas.height = 0; // Clear canvas memory
-                            reject(new Error(`Gagal mengonversi gambar ke data URL. Mungkin masalah format atau memori: ${e.message}`));
-                            return;
-                        }
+                    // Draw image on canvas
+                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
-                        // Clean up memory from the image object and canvas after successful processing
-                        URL.revokeObjectURL(img.src);
-                        canvas.width = canvas.height = 0; // Clear canvas memory
+                    // Get image data URL
+                    // Ensure the type is supported by toDataURL, default to 'image/png' if not
+                    const outputMimeType = file.type.startsWith('image/') ? file.type : 'image/png';
+                    let dataUrl;
+                    try {
+                        // For JPEG and WebP, a quality parameter can be provided (0.0 to 1.0)
+                        // For PNG, this parameter is ignored.
+                        dataUrl = canvas.toDataURL(outputMimeType, 0.9);
+                    } catch (e) {
+                        // Clean up canvas memory immediately if conversion fails
+                        canvas.width = canvas.height = 0;
+                        reject(new Error(`Gagal mengonversi gambar ke data URL. Mungkin masalah format, memori, atau gambar terlalu besar: ${e.message}`));
+                        return;
+                    }
 
-                        // Add preview to the container
-                        const previewImg = document.createElement('img');
-                        previewImg.src = dataUrl;
-                        previewImg.alt = `Pratinjau ${file.name}`;
-                        previewImg.classList.add('w-full', 'h-auto', 'rounded-lg', 'shadow-md', 'object-contain');
+                    // Clean up canvas memory after dataUrl is obtained
+                    canvas.width = canvas.height = 0;
 
-                        const previewItem = document.createElement('div');
-                        previewItem.classList.add('flex', 'flex-col', 'items-center', 'space-y-2');
-                        previewItem.appendChild(previewImg);
-                        // Use the uniqueBaseName passed to the function
-                        const fileExtension = file.name.split('.').pop();
-                        const newFileName = `${uniqueBaseName}_${newWidth}px.${fileExtension}`;
-                        const fileNameSpan = document.createElement('span');
-                        fileNameSpan.textContent = newFileName;
-                        fileNameSpan.classList.add('text-xs', 'text-gray-600', 'truncate', 'w-full', 'text-center');
-                        previewItem.appendChild(fileNameSpan);
+                    // Add preview to the container
+                    const previewImg = document.createElement('img');
+                    previewImg.src = dataUrl; // Preview uses Data URL
+                    previewImg.alt = `Pratinjau ${file.name}`;
+                    previewImg.classList.add('w-full', 'h-auto', 'rounded-lg', 'shadow-md', 'object-contain');
 
-                        previewContainer.appendChild(previewItem);
+                    const previewItem = document.createElement('div');
+                    previewItem.classList.add('flex', 'flex-col', 'items-center', 'space-y-2');
+                    previewItem.appendChild(previewImg);
+                    // Use the uniqueBaseName passed to the function
+                    const fileExtension = file.name.split('.').pop();
+                    const newFileName = `${uniqueBaseName}_${newWidth}px.${fileExtension}`;
+                    const fileNameSpan = document.createElement('span');
+                    fileNameSpan.textContent = newFileName;
+                    fileNameSpan.classList.add('text-xs', 'text-gray-600', 'truncate', 'w-full', 'text-center');
+                    previewItem.appendChild(fileNameSpan);
 
-                        resolve({ dataUrl, fileName: newFileName }); // Return dataUrl and new file name
-                    };
-                    img.onerror = (error) => {
-                        // Clean up memory from the image object if it fails to load
-                        if (readerEvent.target && readerEvent.target.result) {
-                            URL.revokeObjectURL(readerEvent.target.result); // If it was a Blob URL
-                        }
-                        reject(new Error(`Gagal memuat gambar. File mungkin rusak, tidak didukung, atau terlalu besar.`));
-                    };
-                    // Use createObjectURL for potentially better memory management with large files
-                    const imgUrl = URL.createObjectURL(file);
-                    img.src = imgUrl;
-                    // The revokeObjectURL for imgUrl is now done in onload/onerror to ensure image is used first
+                    previewContainer.appendChild(previewItem);
+
+                    resolve({ dataUrl, fileName: newFileName });
                 };
-                reader.onerror = (error) => {
-                    reject(new Error(`Gagal membaca file. Mungkin masalah izin atau file rusak: ${error.message}`));
+
+                img.onerror = (error) => {
+                    // Revoke object URL if an error occurs during loading
+                    if (objectURL) {
+                        URL.revokeObjectURL(objectURL);
+                    }
+                    reject(new Error(`Gagal memuat gambar. File mungkin rusak, tidak didukung, atau terlalu besar.`));
                 };
-                reader.readAsDataURL(file); // Read file as data URL
+
+                // Create object URL directly from the File object for img.src
+                // This avoids reading the entire file as a Base64 string into memory via FileReader.readAsDataURL()
+                objectURL = URL.createObjectURL(file);
+                img.src = objectURL;
             });
         }
     </script>
