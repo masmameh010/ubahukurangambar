@@ -51,7 +51,21 @@
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Pengubah Ukuran Gambar Massal</h1>
+        <!-- Header Section -->
+        <header class="text-center mb-6">
+            <h2 class="text-2xl font-semibold text-gray-700 mb-2">IMAJINASI LOKAL TOOLS</h2>
+            <h1 class="text-3xl font-bold text-gray-800">Pengubah Ukuran Gambar Massal</h1>
+        </header>
+
+        <!-- Warning Message Section -->
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded-lg" role="alert">
+            <p class="font-bold">Perhatian Penting:</p>
+            <p class="text-sm">
+                Aplikasi ini memproses gambar langsung di browser Anda. Jika terjadi kegagalan pemrosesan (misalnya, 'Gagal membaca File' atau 'Gagal memuat gambar'), ini kemungkinan besar disebabkan oleh **keterbatasan RAM** pada perangkat Anda, terutama saat memproses banyak gambar beresolusi tinggi.
+                <br>
+                Untuk hasil terbaik, gunakan perangkat dengan RAM yang lebih besar atau coba proses gambar dalam jumlah yang lebih kecil per sesi.
+            </p>
+        </div>
 
         <!-- File Input Section -->
         <div class="mb-6">
@@ -91,8 +105,14 @@
         <!-- Resize Button -->
         <button id="resizeBtn"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
-            <span id="buttonText">Ubah Ukuran & Unduh ZIP</span>
+            <span id="buttonText">Ubah Ukuran & Proses</span>
             <span id="loadingSpinner" class="loading-spinner hidden"></span>
+        </button>
+
+        <!-- Download Button (Initially Hidden) -->
+        <button id="downloadZipBtn"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg w-full mt-4 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 hidden">
+            Unduh Hasil ZIP
         </button>
 
         <!-- Message Display Area -->
@@ -112,12 +132,14 @@
         const resizeBtn = document.getElementById('resizeBtn');
         const buttonText = document.getElementById('buttonText');
         const loadingSpinner = document.getElementById('loadingSpinner');
+        const downloadZipBtn = document.getElementById('downloadZipBtn'); // New download button
         const messageDiv = document.getElementById('message');
         const fileCountParagraph = document.getElementById('fileCount');
         const previewContainer = document.getElementById('previewContainer');
 
         let selectedFiles = []; // Array to store selected image files
         let failedFiles = []; // Array to store names of files that failed processing
+        let generatedZipBlob = null; // To store the generated ZIP blob
 
         // Event listener for file input change
         imageUpload.addEventListener('change', (event) => {
@@ -127,6 +149,8 @@
                 messageDiv.textContent = ''; // Clear any previous messages
                 previewContainer.innerHTML = ''; // Clear previous previews
                 failedFiles = []; // Reset failed files list
+                downloadZipBtn.classList.add('hidden'); // Hide download button on new file selection
+                generatedZipBlob = null; // Clear previous ZIP blob
             } else {
                 fileCountParagraph.textContent = '';
             }
@@ -152,6 +176,8 @@
                 messageDiv.textContent = '';
                 previewContainer.innerHTML = '';
                 failedFiles = []; // Reset failed files list
+                downloadZipBtn.classList.add('hidden'); // Hide download button on new file selection
+                generatedZipBlob = null; // Clear previous ZIP blob
                 // Assign files to the input element (optional, but good practice if you want to re-use input)
                 const dataTransfer = new DataTransfer();
                 selectedFiles.forEach(file => dataTransfer.items.add(file));
@@ -177,7 +203,7 @@
         resolutionSelect.dispatchEvent(new Event('change'));
 
 
-        // Event listener for resize button click
+        // Event listener for main resize button click
         resizeBtn.addEventListener('click', async () => {
             let targetWidth;
             const selectedResolution = resolutionSelect.value;
@@ -206,8 +232,10 @@
             resizeBtn.disabled = true; // Disable button during processing
             buttonText.classList.add('hidden'); // Hide button text
             loadingSpinner.classList.remove('hidden'); // Show loading spinner
+            downloadZipBtn.classList.add('hidden'); // Hide download button during new process
             previewContainer.innerHTML = ''; // Clear previous previews
             failedFiles = []; // Reset failed files list for new processing batch
+            generatedZipBlob = null; // Clear previous ZIP blob
 
             const resizedImages = []; // Array to store resized image data for zipping
             const fileNameCounts = {}; // To track duplicate original filenames for uniqueness inside ZIP
@@ -216,9 +244,8 @@
             for (let i = 0; i < selectedFiles.length; i++) {
                 const file = selectedFiles[i];
                 try {
-                    // Add a small delay between processing each image
                     // Increased delay to give more time for garbage collection on mobile
-                    await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay
+                    await new Promise(resolve => setTimeout(resolve, 250)); // 250ms delay
 
                     // Generate a unique base name for the file within this batch
                     let originalFileNameBase = file.name.split('.').slice(0, -1).join('.');
@@ -254,24 +281,27 @@
                 });
 
                 try {
-                    const zipBlob = await zip.generateAsync({ type: "blob" });
+                    generatedZipBlob = await zip.generateAsync({ type: "blob" }); // Store the blob
+                    
                     // Add a timestamp to the ZIP file name for uniqueness
                     const now = new Date();
                     const timestamp = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
-                    saveAs(zipBlob, `gambar_diubah_ukuran_${targetWidth}px_${timestamp}.zip`); // Trigger single ZIP download
+                    downloadZipBtn.dataset.filename = `gambar_diubah_ukuran_${targetWidth}px_${timestamp}.zip`; // Store filename in dataset
+
+                    downloadZipBtn.classList.remove('hidden'); // Show download button
 
                     if (failedFiles.length === 0) {
-                        messageDiv.textContent = 'Semua gambar berhasil diubah ukurannya dan diunduh sebagai ZIP!';
+                        messageDiv.textContent = 'Semua gambar berhasil diproses! Klik "Unduh Hasil ZIP" di bawah.';
                         messageDiv.classList.remove('text-indigo-600');
                         messageDiv.classList.add('text-green-600');
                     } else {
-                        messageDiv.textContent = `Selesai! ${processedCount} gambar berhasil diubah ukurannya dan diunduh sebagai ZIP. Gagal memproses: ${failedFiles.join(', ')}.`;
+                        messageDiv.textContent = `Selesai memproses! ${processedCount} gambar berhasil. Gagal: ${failedFiles.join(', ')}. Klik "Unduh Hasil ZIP" di bawah.`;
                         messageDiv.classList.remove('text-indigo-600');
                         messageDiv.classList.add('text-orange-500'); // Indicate partial success/some failures
                     }
                 } catch (zipError) {
-                    console.error("Gagal membuat atau mengunduh file ZIP:", zipError);
-                    messageDiv.textContent = `Terjadi kesalahan saat membuat atau mengunduh file ZIP. Gagal memproses: ${failedFiles.join(', ')}.`;
+                    console.error("Gagal membuat file ZIP:", zipError);
+                    messageDiv.textContent = `Terjadi kesalahan saat membuat file ZIP. Gagal memproses: ${failedFiles.join(', ')}.`;
                     messageDiv.classList.remove('text-indigo-600');
                     messageDiv.classList.add('text-red-500');
                 }
@@ -281,9 +311,20 @@
                 messageDiv.classList.add('text-red-500');
             }
 
-            resizeBtn.disabled = false; // Re-enable button
+            resizeBtn.disabled = false; // Re-enable main button
             buttonText.classList.remove('hidden'); // Show button text
             loadingSpinner.classList.add('hidden'); // Hide loading spinner
+        });
+
+        // Event listener for the new download ZIP button
+        downloadZipBtn.addEventListener('click', () => {
+            if (generatedZipBlob) {
+                const filename = downloadZipBtn.dataset.filename || 'gambar_diubah_ukuran.zip';
+                saveAs(generatedZipBlob, filename);
+            } else {
+                messageDiv.textContent = 'Tidak ada file ZIP yang siap diunduh. Silakan proses gambar terlebih dahulu.';
+                messageDiv.classList.add('text-red-500');
+            }
         });
 
         /**
@@ -300,69 +341,75 @@
                 let objectURL; // To store the URL created by createObjectURL
 
                 img.onload = () => {
-                    // Revoke the object URL as soon as the image is loaded into the Image object
-                    // This frees up the Blob/File reference in memory. CRITICAL for memory management.
-                    if (objectURL) {
-                        URL.revokeObjectURL(objectURL);
-                    }
-
-                    // Explicitly check if image loaded with valid dimensions
-                    if (img.width === 0 || img.height === 0) {
-                        reject(new Error(`Gambar tidak valid atau kosong (lebar/tinggi 0).`));
-                        return;
-                    }
-
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-
-                    // Calculate new height to maintain aspect ratio
-                    const aspectRatio = img.width / img.height;
-                    const newHeight = newWidth / aspectRatio;
-
-                    canvas.width = newWidth;
-                    canvas.height = newHeight;
-
-                    // Draw image on canvas
-                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-                    // Get image data URL
-                    // Ensure the type is supported by toDataURL, default to 'image/png' if not
-                    const outputMimeType = file.type.startsWith('image/') ? file.type : 'image/png';
-                    let dataUrl;
                     try {
-                        // For JPEG and WebP, a quality parameter can be provided (0.0 to 1.0)
-                        // For PNG, this parameter is ignored.
-                        dataUrl = canvas.toDataURL(outputMimeType, 0.9);
+                        // Revoke the object URL as soon as the image is loaded into the Image object
+                        // This frees up the Blob/File reference in memory. CRITICAL for memory management.
+                        if (objectURL) {
+                            URL.revokeObjectURL(objectURL);
+                        }
+
+                        // Explicitly check if image loaded with valid dimensions
+                        if (img.width === 0 || img.height === 0) {
+                            throw new Error(`Gambar tidak valid atau kosong (lebar/tinggi 0).`);
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Calculate new height to maintain aspect ratio
+                        const aspectRatio = img.width / img.height;
+                        const newHeight = newWidth / aspectRatio;
+
+                        canvas.width = newWidth;
+                        canvas.height = newHeight;
+
+                        // Draw image on canvas
+                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+                        // Get image data URL
+                        // Ensure the type is supported by toDataURL, default to 'image/png' if not
+                        const outputMimeType = file.type.startsWith('image/') ? file.type : 'image/png';
+                        let dataUrl;
+                        try {
+                            // For JPEG and WebP, a quality parameter can be provided (0.0 to 1.0)
+                            // For PNG, this parameter is ignored.
+                            dataUrl = canvas.toDataURL(outputMimeType, 0.9);
+                        } catch (e) {
+                            throw new Error(`Gagal mengonversi gambar ke data URL. Mungkin masalah format, memori, atau gambar terlalu besar: ${e.message}`);
+                        }
+
+                        // Add preview to the container
+                        const previewImg = document.createElement('img');
+                        previewImg.src = dataUrl; // Preview uses Data URL
+                        previewImg.alt = `Pratinjau ${file.name}`;
+                        previewImg.classList.add('w-full', 'h-auto', 'rounded-lg', 'shadow-md', 'object-contain');
+
+                        const previewItem = document.createElement('div');
+                        previewItem.classList.add('flex', 'flex-col', 'items-center', 'space-y-2');
+                        previewItem.appendChild(previewImg);
+                        // Use the uniqueBaseName passed to the function
+                        const fileExtension = file.name.split('.').pop();
+                        const newFileName = `${uniqueBaseName}_${newWidth}px.${fileExtension}`;
+                        const fileNameSpan = document.createElement('span');
+                        fileNameSpan.textContent = newFileName;
+                        fileNameSpan.classList.add('text-xs', 'text-gray-600', 'truncate', 'w-full', 'text-center');
+                        previewItem.appendChild(fileNameSpan);
+
+                        previewContainer.appendChild(previewItem);
+
+                        resolve({ dataUrl, fileName: newFileName });
                     } catch (e) {
-                        // Clean up canvas memory immediately if conversion fails
-                        canvas.width = canvas.height = 0;
-                        reject(new Error(`Gagal mengonversi gambar ke data URL. Mungkin masalah format, memori, atau gambar terlalu besar: ${e.message}`));
-                        return;
+                        reject(e); // Reject the promise with the caught error
+                    } finally {
+                        // Ensure canvas memory is cleared regardless of success or failure in onload
+                        // Check if canvas was created before trying to clear it
+                        const canvasElements = document.getElementsByTagName('canvas');
+                        if (canvasElements.length > 0) {
+                            const tempCanvas = canvasElements[canvasElements.length - 1]; // Get the last created canvas
+                            tempCanvas.width = tempCanvas.height = 0; // Clear its memory
+                            tempCanvas.remove(); // Remove it from DOM if it was appended (though not explicitly done here)
+                        }
                     }
-
-                    // Clean up canvas memory after dataUrl is obtained
-                    canvas.width = canvas.height = 0;
-
-                    // Add preview to the container
-                    const previewImg = document.createElement('img');
-                    previewImg.src = dataUrl; // Preview uses Data URL
-                    previewImg.alt = `Pratinjau ${file.name}`;
-                    previewImg.classList.add('w-full', 'h-auto', 'rounded-lg', 'shadow-md', 'object-contain');
-
-                    const previewItem = document.createElement('div');
-                    previewItem.classList.add('flex', 'flex-col', 'items-center', 'space-y-2');
-                    previewItem.appendChild(previewImg);
-                    // Use the uniqueBaseName passed to the function
-                    const fileExtension = file.name.split('.').pop();
-                    const newFileName = `${uniqueBaseName}_${newWidth}px.${fileExtension}`;
-                    const fileNameSpan = document.createElement('span');
-                    fileNameSpan.textContent = newFileName;
-                    fileNameSpan.classList.add('text-xs', 'text-gray-600', 'truncate', 'w-full', 'text-center');
-                    previewItem.appendChild(fileNameSpan);
-
-                    previewContainer.appendChild(previewItem);
-
-                    resolve({ dataUrl, fileName: newFileName });
                 };
 
                 img.onerror = (error) => {
