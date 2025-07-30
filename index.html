@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengubah Ukuran Gambar Massal</title>
+    <title>IMAJINASI LOKAL TOOLS</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- JSZip CDN for creating zip files -->
@@ -12,17 +12,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
             min-height: 100vh;
         }
-        
         input[type="file"] {
             display: none;
         }
-        
         .custom-file-upload {
             border: 2px dashed #cbd5e1;
             border-radius: 0.75rem;
@@ -32,17 +29,14 @@
             transition: all 0.3s ease;
             background-color: #f8fafc;
         }
-        
         .custom-file-upload:hover {
             border-color: #818cf8;
             background-color: #eff6ff;
         }
-        
         .custom-file-upload.drag-over {
             background-color: #dbeafe;
             border-color: #6366f1;
         }
-        
         .loading-spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             border-left-color: #6366f1;
@@ -50,16 +44,17 @@
             width: 24px;
             height: 24px;
             animation: spin 1s linear infinite;
-            display: inline-block;
+            display: none;
             vertical-align: middle;
-            margin-right: 8px;
+            margin-left: 8px;
         }
-        
+        .loading-spinner.visible {
+            display: inline-block;
+        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
         .card {
             background: white;
             border-radius: 1.5rem;
@@ -67,12 +62,10 @@
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
         }
-        
         .progress-container {
             height: 8px;
             background-color: #e2e8f0;
@@ -80,28 +73,23 @@
             overflow: hidden;
             margin-top: 8px;
         }
-        
         .progress-bar {
             height: 100%;
             background-color: #6366f1;
             border-radius: 4px;
             transition: width 0.3s ease;
         }
-        
         .preview-img {
             transition: transform 0.3s ease;
         }
-        
         .preview-img:hover {
             transform: scale(1.05);
         }
-        
         .tooltip {
             position: relative;
             display: inline-block;
             cursor: help;
         }
-        
         .tooltip .tooltip-text {
             visibility: hidden;
             width: 200px;
@@ -119,7 +107,6 @@
             transition: opacity 0.3s;
             font-size: 0.875rem;
         }
-        
         .tooltip:hover .tooltip-text {
             visibility: visible;
             opacity: 1;
@@ -127,43 +114,49 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 py-10">
-    <div class="card w-full max-w-2xl">
-        <!-- Header Section -->
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-center">
-            <h1 class="text-2xl font-bold text-white mb-1">LOKAL TOOL</h1>
-            <h2 class="text-3xl font-extrabold text-white">PENGUBAH UKURAN GAMBAR MASSAL</h2>
+    <div class="card w-full max-w-3xl">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 p-6 text-center">
+            <h1 class="text-3xl font-extrabold text-white mb-1">IMAJINASI LOKAL TOOLS</h1>
+            <p class="text-white/90 text-sm">Alat pengubah ukuran gambar massal secara lokal tanpa upload</p>
         </div>
-        
-        <!-- Main Content -->
-        <div class="p-6">
-            <!-- Warning Message Section -->
-            <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded-lg">
-                <div class="flex items-start">
-                    <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                    </svg>
-                    <div>
-                        <p class="font-bold">Perhatian Penting:</p>
-                        <p class="text-sm mt-1">
-                            Aplikasi ini memproses gambar langsung di browser Anda. Untuk gambar beresolusi tinggi atau dalam jumlah besar, gunakan perangkat dengan RAM yang cukup. Disarankan untuk memproses dalam batch kecil jika mengalami masalah.
-                        </p>
-                    </div>
+
+        <!-- Info Section -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 mx-6 mt-4 rounded-lg">
+            <p class="font-bold">Apa itu IMAJINASI LOKAL TOOLS?</p>
+            <p class="text-sm mt-1">
+                Alat ini memungkinkan Anda mengubah ukuran banyak gambar sekaligus langsung di browser tanpa mengunggahnya ke server.
+                Cocok untuk desainer, fotografer, atau siapa pun yang ingin mengoptimalkan gambar dengan cepat dan aman.
+            </p>
+        </div>
+
+        <!-- Warning -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 mx-6 mt-4 rounded-lg">
+            <div class="flex items-start">
+                <svg class="w-5 h-5 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <div>
+                    <p class="font-bold">Proses Lokal - Aman & Privat</p>
+                    <p class="text-sm mt-1">Semua gambar diproses di perangkat Anda. Tidak ada data yang dikirim ke internet.</p>
                 </div>
             </div>
+        </div>
 
-            <!-- File Input Section -->
+        <!-- Main Content -->
+        <div class="p-6">
+            <!-- File Upload -->
             <div class="mb-6">
                 <label for="imageUpload" class="custom-file-upload block">
                     <div class="flex flex-col items-center justify-center">
-                        <svg class="w-12 h-12 text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-12 h-12 text-indigo-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                         </svg>
                         <span class="text-indigo-600 font-medium text-lg">Pilih atau Tarik Gambar</span>
-                        <p class="text-gray-500 mt-2 text-sm">Format yang didukung: JPG, PNG, GIF, WebP</p>
-                        <p class="text-gray-400 text-xs mt-1">(Maksimal 50 gambar per batch)</p>
+                        <p class="text-gray-500 mt-2 text-sm">Dukungan: JPG, PNG, GIF, WebP (Maks 50)</p>
                     </div>
                 </label>
-                <input type="file" id="imageUpload" accept="image/*" multiple class="hidden">
+                <input type="file" id="imageUpload" accept="image/*" multiple>
                 <p id="fileCount" class="text-center text-gray-600 mt-3"></p>
                 <div id="progressContainer" class="hidden mt-4">
                     <div class="flex justify-between text-sm text-gray-600 mb-1">
@@ -176,15 +169,12 @@
                 </div>
             </div>
 
-            <!-- Settings Section -->
+            <!-- Settings -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <!-- Resolution Settings -->
                 <div>
-                    <label for="resolutionSelect" class="block text-gray-700 font-medium mb-2">
-                        Resolusi Target
-                    </label>
-                    <select id="resolutionSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
-                        <option value="custom">Kustom (Masukkan Lebar)</option>
+                    <label for="resolutionSelect" class="block text-gray-700 font-medium mb-2">Resolusi Target</label>
+                    <select id="resolutionSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="custom">Kustom</option>
                         <option value="1280">HD (1280px)</option>
                         <option value="1920" selected>FHD (1920px)</option>
                         <option value="2048">2K (2048px)</option>
@@ -192,22 +182,32 @@
                         <option value="3840">4K (3840px)</option>
                     </select>
                 </div>
-                
-                <!-- Width Input -->
                 <div>
-                    <label for="newWidth" class="block text-gray-700 font-medium mb-2">
-                        Lebar Kustom (piksel)
-                    </label>
-                    <input type="number" id="newWidth" value="800" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition">
+                    <label for="newWidth" class="block text-gray-700 font-medium mb-2">Lebar Kustom (px)</label>
+                    <input type="number" id="newWidth" value="800" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
                 </div>
             </div>
 
-            <!-- Quality Setting -->
+            <!-- Output Format -->
+            <div class="mb-6">
+                <label class="block text-gray-700 font-medium mb-2">Format Output</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center">
+                        <input type="radio" name="outputFormat" value="jpeg" class="mr-2" checked> JPEG
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="outputFormat" value="png" class="mr-2"> PNG
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="outputFormat" value="webp" class="mr-2"> WebP
+                    </label>
+                </div>
+            </div>
+
+            <!-- Quality -->
             <div class="mb-6">
                 <div class="flex justify-between items-center mb-2">
-                    <label class="text-gray-700 font-medium">
-                        Kualitas Gambar
-                    </label>
+                    <label class="text-gray-700 font-medium">Kualitas Gambar</label>
                     <span id="qualityValue" class="text-indigo-600 font-medium">90%</span>
                 </div>
                 <input type="range" id="qualitySlider" min="30" max="100" value="90" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
@@ -217,19 +217,53 @@
                 </div>
             </div>
 
+            <!-- Filename Options -->
+            <div class="mb-6">
+                <label class="block text-gray-700 font-medium mb-2">Nama File Output</label>
+                <div class="space-y-3">
+                    <label class="flex items-center">
+                        <input type="radio" name="filenameOption" value="original" class="mr-2" checked>
+                        <span>Pertahankan nama asli</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="filenameOption" value="template" class="mr-2">
+                        <input type="text" id="templateName" placeholder="Masukkan nama" class="ml-2 px-2 py-1 border rounded text-sm w-32 hidden" disabled>
+                        <span class="ml-1">Gunakan template: <code id="previewName" class="text-xs bg-gray-100 px-1 rounded">nama_baru_1.jpg</code></span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="filenameOption" value="custom" class="mr-2">
+                        <input type="text" id="customName" placeholder="Masukkan nama" class="ml-2 px-2 py-1 border rounded text-sm w-32 hidden" disabled>
+                        <span class="ml-1">Custom + angka: <code id="previewCustom" class="text-xs bg-gray-100 px-1 rounded">custom_1.jpg</code></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Remove Metadata -->
+            <div class="mb-6">
+                <label class="flex items-center">
+                    <input type="checkbox" id="removeMetadata" class="mr-2">
+                    <span class="text-gray-700 font-medium">Hapus metadata (EXIF, lokasi, dll)</span>
+                    <div class="tooltip ml-1">
+                        <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="tooltip-text">Metadata seperti lokasi, perangkat, waktu dapat dihapus untuk privasi dan mengurangi ukuran file.</span>
+                    </div>
+                </label>
+            </div>
+
             <!-- Action Buttons -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <button id="resizeBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center">
+                <button id="resizeBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition flex items-center justify-center">
                     <span id="buttonText">Proses Gambar</span>
-                    <span id="loadingSpinner" class="loading-spinner hidden ml-2"></span>
+                    <span id="loadingSpinner" class="loading-spinner ml-2"></span>
                 </button>
-                
-                <button id="downloadZipBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 hidden">
+                <button id="downloadZipBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition hidden">
                     Unduh Semua Gambar
                 </button>
             </div>
 
-            <!-- Message Display Area -->
+            <!-- Message -->
             <div id="message" class="mt-6 text-center p-3 rounded-lg hidden"></div>
 
             <!-- Preview Header -->
@@ -238,20 +272,18 @@
                 <span id="previewCount" class="text-sm text-gray-600"></span>
             </div>
 
-            <!-- Preview Area -->
-            <div id="previewContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-                <!-- Resized image previews will be inserted here -->
-            </div>
+            <!-- Preview -->
+            <div id="previewContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4"></div>
         </div>
-        
+
         <!-- Footer -->
         <div class="bg-gray-50 px-6 py-4 text-center border-t border-gray-200">
-            <p class="text-gray-600 text-sm">© 2025 LOKAL TOOL • Gambar diproses secara lokal di browser Anda</p>
+            <p class="text-gray-600 text-sm">@imajinasi.lokal - 2025 - TOOLS PEMROSESAN GAMBAR OFFLINE</p>
         </div>
     </div>
 
     <script>
-        // Get references to DOM elements
+        // DOM Elements
         const imageUpload = document.getElementById('imageUpload');
         const newWidthInput = document.getElementById('newWidth');
         const resolutionSelect = document.getElementById('resolutionSelect');
@@ -270,342 +302,238 @@
         const progressPercent = document.getElementById('progressPercent');
         const qualitySlider = document.getElementById('qualitySlider');
         const qualityValue = document.getElementById('qualityValue');
+        const outputFormatRadios = document.querySelectorAll('input[name="outputFormat"]');
+        const filenameOptionRadios = document.querySelectorAll('input[name="filenameOption"]');
+        const templateNameInput = document.getElementById('templateName');
+        const customNameInput = document.getElementById('customName');
+        const previewName = document.getElementById('previewName');
+        const previewCustom = document.getElementById('previewCustom');
+        const removeMetadataCheckbox = document.getElementById('removeMetadata');
 
         let selectedFiles = [];
-        let failedFiles = [];
         let generatedZipBlob = null;
         let isProcessing = false;
-        let cancelProcessing = false;
 
-        // Update quality value display
+        // Update quality display
         qualitySlider.addEventListener('input', () => {
             qualityValue.textContent = `${qualitySlider.value}%`;
         });
 
-        // Event listener for file input change
-        imageUpload.addEventListener('change', (event) => {
-            handleFileSelection(event.target.files);
-        });
-
-        // Drag and drop functionality
-        const customFileUpload = document.querySelector('.custom-file-upload');
-        customFileUpload.addEventListener('dragover', (event) => {
-            event.preventDefault();
-            customFileUpload.classList.add('drag-over');
-        });
-
-        customFileUpload.addEventListener('dragleave', () => {
-            customFileUpload.classList.remove('drag-over');
-        });
-
-        customFileUpload.addEventListener('drop', (event) => {
-            event.preventDefault();
-            customFileUpload.classList.remove('drag-over');
-            handleFileSelection(event.dataTransfer.files);
-        });
-
-        function handleFileSelection(files) {
-            // Filter only image files
-            selectedFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-            
-            // Limit to 50 files
+        // Handle file selection
+        imageUpload.addEventListener('change', (e) => {
+            selectedFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
             if (selectedFiles.length > 50) {
                 selectedFiles = selectedFiles.slice(0, 50);
-                showMessage(`Maksimal 50 gambar. Hanya memproses 50 gambar pertama.`, 'warning');
+                showMessage('Maksimal 50 gambar. Hanya 50 pertama yang diproses.', 'warning');
             }
-            
-            if (selectedFiles.length > 0) {
-                fileCountParagraph.textContent = `${selectedFiles.length} gambar dipilih`;
-                messageDiv.classList.add('hidden');
-                previewContainer.innerHTML = '';
-                previewHeader.classList.add('hidden');
-                failedFiles = [];
-                downloadZipBtn.classList.add('hidden');
-                generatedZipBlob = null;
-                
-                // Assign files to the input element
-                const dataTransfer = new DataTransfer();
-                selectedFiles.forEach(file => dataTransfer.items.add(file));
-                imageUpload.files = dataTransfer.files;
-            } else {
-                fileCountParagraph.textContent = '';
-            }
-        }
-
-        // Event listener for resolution select change
-        resolutionSelect.addEventListener('change', (event) => {
-            const selectedValue = event.target.value;
-            if (selectedValue === 'custom') {
-                newWidthInput.disabled = false;
-                newWidthInput.value = '800';
-            } else {
-                newWidthInput.disabled = true;
-                newWidthInput.value = selectedValue;
-            }
+            fileCountParagraph.textContent = `${selectedFiles.length} gambar dipilih`;
+            clearPreviews();
         });
 
-        // Initialize input state based on default select value
+        // Drag & drop
+        const uploader = document.querySelector('.custom-file-upload');
+        ['dragover', 'dragenter'].forEach(e => {
+            uploader.addEventListener(e, (ev) => {
+                ev.preventDefault();
+                uploader.classList.add('drag-over');
+            });
+        });
+        ['dragleave', 'dragend'].forEach(e => {
+            uploader.addEventListener(e, () => uploader.classList.remove('drag-over'));
+        });
+        uploader.addEventListener('drop', (ev) => {
+            ev.preventDefault();
+            uploader.classList.remove('drag-over');
+            imageUpload.files = ev.dataTransfer.files;
+            imageUpload.dispatchEvent(new Event('change'));
+        });
+
+        // Resolution change
+        resolutionSelect.addEventListener('change', () => {
+            newWidthInput.disabled = resolutionSelect.value !== 'custom';
+            newWidthInput.value = resolutionSelect.value === 'custom' ? 800 : resolutionSelect.value;
+        });
         resolutionSelect.dispatchEvent(new Event('change'));
 
-        // Event listener for main resize button click
+        // Filename option logic
+        filenameOptionRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const template = radio.value === 'template';
+                const custom = radio.value === 'custom';
+                templateNameInput.disabled = !template;
+                customNameInput.disabled = !custom;
+                templateNameInput.classList.toggle('hidden', !template);
+                customNameInput.classList.toggle('hidden', !custom);
+
+                if (template) {
+                    const name = templateNameInput.value || 'nama_baru';
+                    previewName.textContent = `${name}_1.jpg`;
+                    templateNameInput.addEventListener('input', (e) => {
+                        previewName.textContent = `${e.target.value || 'nama_baru'}_1.jpg`;
+                    });
+                }
+                if (custom) {
+                    const name = customNameInput.value || 'custom';
+                    previewCustom.textContent = `${name}_1.jpg`;
+                    customNameInput.addEventListener('input', (e) => {
+                        previewCustom.textContent = `${e.target.value || 'custom'}_1.jpg`;
+                    });
+                }
+            });
+        });
+
+        // Resize button
         resizeBtn.addEventListener('click', async () => {
-            if (isProcessing) return;
-            
-            let targetWidth;
-            const selectedResolution = resolutionSelect.value;
+            if (isProcessing || selectedFiles.length === 0) return;
 
-            if (selectedResolution === 'custom') {
-                targetWidth = parseInt(newWidthInput.value);
-            } else {
-                targetWidth = parseInt(selectedResolution);
-            }
-            
+            const targetWidth = parseInt(resolutionSelect.value === 'custom' ? newWidthInput.value : resolutionSelect.value);
             const quality = parseInt(qualitySlider.value) / 100;
+            const outputFormat = [...outputFormatRadios].find(r => r.checked).value;
+            const removeMetadata = removeMetadataCheckbox.checked;
+            const filenameOption = [...filenameOptionRadios].find(r => r.checked).value;
+            const templateName = templateNameInput.value || 'nama_baru';
+            const customName = customNameInput.value || 'custom';
 
-            // Validate inputs
-            if (selectedFiles.length === 0) {
-                showMessage('Silakan pilih setidaknya satu gambar terlebih dahulu.', 'error');
-                return;
-            }
             if (isNaN(targetWidth) || targetWidth <= 0) {
-                showMessage('Silakan masukkan lebar yang valid (angka positif).', 'error');
+                showMessage('Lebar harus angka positif.', 'error');
                 return;
             }
 
-            // Prepare UI for processing
             isProcessing = true;
-            cancelProcessing = false;
             resizeBtn.disabled = true;
             buttonText.textContent = 'Memproses...';
-            loadingSpinner.classList.remove('hidden');
-            downloadZipBtn.classList.add('hidden');
-            previewContainer.innerHTML = '';
-            previewHeader.classList.add('hidden');
-            failedFiles = [];
-            generatedZipBlob = null;
-            progressContainer.classList.remove('hidden');
-            progressBar.style.width = '0%';
-            progressPercent.textContent = '0%';
-            progressStatus.textContent = 'Memulai proses...';
+            loadingSpinner.classList.add('visible');
+            clearPreviews();
 
             const resizedImages = [];
-            const fileNameCounts = {};
-            let processedCount = 0;
-            const totalFiles = selectedFiles.length;
+            const total = selectedFiles.length;
+            let processed = 0;
 
-            // Process each image sequentially
-            for (let i = 0; i < selectedFiles.length; i++) {
-                if (cancelProcessing) break;
-                
-                const file = selectedFiles[i];
+            for (const file of selectedFiles) {
+                processed++;
+                const progress = Math.round((processed / total) * 100);
+                progressBar.style.width = `${progress}%`;
+                progressPercent.textContent = `${progress}%`;
+                progressStatus.textContent = `Proses: ${file.name}`;
+
                 try {
-                    // Update progress
-                    processedCount++;
-                    const progress = Math.round((processedCount / totalFiles) * 100);
-                    progressBar.style.width = `${progress}%`;
-                    progressPercent.textContent = `${progress}%`;
-                    progressStatus.textContent = `Memproses: ${file.name} (${processedCount}/${totalFiles})`;
-                    
-                    // Generate a unique base name for the file within this batch
-                    let originalFileNameBase = file.name.split('.').slice(0, -1).join('.');
-                    let uniqueBaseName = originalFileNameBase;
-                    let counter = 1;
-                    while (fileNameCounts[uniqueBaseName]) {
-                        uniqueBaseName = `${originalFileNameBase}_${counter}`;
-                        counter++;
-                    }
-                    fileNameCounts[uniqueBaseName] = true; // Mark this unique base name as used
+                    const mimeType = `image/${outputFormat}`;
+                    const fileNameBase = (filenameOption === 'original') ? file.name.split('.').slice(0, -1).join('.') :
+                                         (filenameOption === 'template') ? templateName : customName;
+                    const fileName = `${fileNameBase}_${processed}.${outputFormat}`;
 
-                    // Resize the image with quality setting
-                    const resizedData = await resizeImage(file, targetWidth, uniqueBaseName, quality);
-                    resizedImages.push(resizedData);
-                    
-                    // Add to preview
-                    addPreview(resizedData.dataUrl, resizedData.fileName);
-                    
-                } catch (error) {
-                    console.error(`Gagal memproses ${file.name}:`, error);
-                    failedFiles.push(`${file.name} (${error.message || 'unknown error'})`);
+                    const resizedData = await resizeImage(file, targetWidth, mimeType, quality, removeMetadata);
+                    resizedImages.push({ dataUrl: resizedData, fileName });
+                    addPreview(resizedData, fileName);
+                } catch (e) {
+                    console.error(e);
                 }
-                
-                // Add delay to prevent UI blocking and allow garbage collection
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(r => setTimeout(r, 50));
             }
 
-            // Final processing steps
-            if (cancelProcessing) {
-                showMessage('Pemrosesan dibatalkan.', 'warning');
-            } else if (processedCount > 0) {
-                progressStatus.textContent = `Membuat file ZIP (${processedCount} gambar)...`;
-                
-                try {
-                    generatedZipBlob = await createZipFile(resizedImages);
-                    const timestamp = getTimestamp();
-                    downloadZipBtn.dataset.filename = `gambar_diubah_ukuran_${targetWidth}px_${timestamp}.zip`;
-                    downloadZipBtn.classList.remove('hidden');
-                    
-                    if (failedFiles.length === 0) {
-                        showMessage('Semua gambar berhasil diproses! Klik "Unduh Semua Gambar" untuk mendapatkan hasil.', 'success');
-                    } else {
-                        showMessage(`Selesai memproses! ${processedCount} gambar berhasil. ${failedFiles.length} gagal.`, 'warning');
-                    }
-                } catch (zipError) {
-                    console.error("Gagal membuat file ZIP:", zipError);
-                    showMessage(`Terjadi kesalahan saat membuat file ZIP. ${failedFiles.length} gambar gagal diproses.`, 'error');
-                }
-            } else {
-                showMessage(`Gagal memproses semua gambar. Silakan coba dengan jumlah lebih sedikit.`, 'error');
+            // Create ZIP
+            progressStatus.textContent = 'Membuat ZIP...';
+            try {
+                generatedZipBlob = await createZipFile(resizedImages);
+                const timestamp = new Date().toISOString().replace(/[:.-]/g, '').slice(0, 14);
+                downloadZipBtn.dataset.filename = `imajinasi_lokal_${targetWidth}px_${timestamp}.zip`;
+                downloadZipBtn.classList.remove('hidden');
+                showMessage(`Selesai! ${resizedImages.length} gambar siap diunduh.`, 'success');
+            } catch (e) {
+                showMessage('Gagal membuat ZIP.', 'error');
             }
 
             // Reset UI
             isProcessing = false;
             resizeBtn.disabled = false;
             buttonText.textContent = 'Proses Gambar';
-            loadingSpinner.classList.add('hidden');
+            loadingSpinner.classList.remove('visible');
             progressContainer.classList.add('hidden');
-            
-            // Show preview header if we have previews
-            if (previewContainer.children.length > 0) {
+            if (resizedImages.length > 0) {
                 previewHeader.classList.remove('hidden');
-                previewCount.textContent = `${previewContainer.children.length} gambar`;
+                previewCount.textContent = `${resizedImages.length} gambar`;
             }
         });
 
-        // Event listener for the download ZIP button
+        // Download ZIP
         downloadZipBtn.addEventListener('click', () => {
             if (generatedZipBlob) {
-                const filename = downloadZipBtn.dataset.filename || 'gambar_diubah_ukuran.zip';
-                saveAs(generatedZipBlob, filename);
+                saveAs(generatedZipBlob, downloadZipBtn.dataset.filename);
             } else {
-                showMessage('Tidak ada file ZIP yang siap diunduh. Silakan proses gambar terlebih dahulu.', 'error');
+                showMessage('Tidak ada file untuk diunduh.', 'error');
             }
         });
 
-        // Helper function to show messages
+        // Helper: Show message
         function showMessage(text, type) {
             messageDiv.textContent = text;
-            messageDiv.className = 'mt-6 text-center p-3 rounded-lg';
-            
-            switch(type) {
-                case 'error':
-                    messageDiv.classList.add('bg-red-100', 'text-red-700', 'border-l-4', 'border-red-500');
-                    break;
-                case 'success':
-                    messageDiv.classList.add('bg-green-100', 'text-green-700', 'border-l-4', 'border-green-500');
-                    break;
-                case 'warning':
-                    messageDiv.classList.add('bg-yellow-100', 'text-yellow-700', 'border-l-4', 'border-yellow-500');
-                    break;
-                default:
-                    messageDiv.classList.add('bg-blue-100', 'text-blue-700', 'border-l-4', 'border-blue-500');
-            }
-            
+            messageDiv.className = `mt-6 text-center p-3 rounded-lg border-l-4 ${type === 'error' ? 'bg-red-100 text-red-700 border-red-500' : 
+                type === 'success' ? 'bg-green-100 text-green-700 border-green-500' :
+                'bg-yellow-100 text-yellow-700 border-yellow-500'}`;
             messageDiv.classList.remove('hidden');
         }
 
-        // Helper function to create ZIP file
+        // Helper: Create ZIP
         function createZipFile(images) {
             return new Promise((resolve, reject) => {
                 const zip = new JSZip();
-                
                 images.forEach(img => {
-                    const base64Data = img.dataUrl.split(',')[1];
-                    zip.file(img.fileName, base64Data, { base64: true });
+                    const base64 = img.dataUrl.split(',')[1];
+                    zip.file(img.fileName, base64, { base64: true });
                 });
-                
-                zip.generateAsync({ type: "blob" })
-                    .then(blob => resolve(blob))
-                    .catch(error => reject(error));
+                zip.generateAsync({ type: 'blob' }).then(resolve).catch(reject);
             });
         }
 
-        // Helper function to get timestamp
-        function getTimestamp() {
-            const now = new Date();
-            return `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
-        }
-
-        // Function to add preview to container
+        // Helper: Add preview
         function addPreview(dataUrl, fileName) {
-            const previewItem = document.createElement('div');
-            previewItem.classList.add('flex', 'flex-col', 'items-center');
-            
-            const previewImg = document.createElement('img');
-            previewImg.src = dataUrl;
-            previewImg.alt = `Pratinjau ${fileName}`;
-            previewImg.classList.add('w-full', 'h-24', 'object-cover', 'rounded-lg', 'shadow-md', 'preview-img');
-            
-            const fileNameSpan = document.createElement('span');
-            fileNameSpan.textContent = fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
-            fileNameSpan.classList.add('text-xs', 'text-gray-600', 'mt-2', 'truncate', 'w-full', 'text-center');
-            fileNameSpan.title = fileName;
-            
-            previewItem.appendChild(previewImg);
-            previewItem.appendChild(fileNameSpan);
-            previewContainer.appendChild(previewItem);
+            const div = document.createElement('div');
+            div.className = 'flex flex-col items-center';
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.alt = fileName;
+            img.className = 'w-full h-24 object-cover rounded-lg shadow-md preview-img';
+            const span = document.createElement('span');
+            span.textContent = fileName.length > 15 ? fileName.substring(0, 12) + '...' : fileName;
+            span.title = fileName;
+            span.className = 'text-xs text-gray-600 mt-2 text-center truncate w-full';
+            div.appendChild(img);
+            div.appendChild(span);
+            previewContainer.appendChild(div);
         }
 
-        /**
-         * Resizes an image and returns its data URL and new file name.
-         * @param {File} file - The image file to resize.
-         * @param {number} newWidth - The desired new width in pixels.
-         * @param {string} uniqueBaseName - The unique base name for the file.
-         * @param {number} quality - The output quality (0.0 to 1.0).
-         * @returns {Promise<{dataUrl: string, fileName: string}>} - Resolves with the resized image data.
-         */
-        function resizeImage(file, newWidth, uniqueBaseName, quality) {
+        // Helper: Clear previews
+        function clearPreviews() {
+            previewContainer.innerHTML = '';
+            previewHeader.classList.add('hidden');
+            messageDiv.classList.add('hidden');
+        }
+
+        // Main resize function
+        function resizeImage(file, newWidth, mimeType, quality, removeMetadata) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
-                let objectURL;
-
+                const url = URL.createObjectURL(file);
                 img.onload = () => {
-                    try {
-                        // Revoke object URL to free memory
-                        if (objectURL) URL.revokeObjectURL(objectURL);
-
-                        // Check for valid image dimensions
-                        if (img.width === 0 || img.height === 0) {
-                            throw new Error('Gambar tidak valid atau kosong');
-                        }
-
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-
-                        // Calculate new height to maintain aspect ratio
-                        const aspectRatio = img.width / img.height;
-                        const newHeight = newWidth / aspectRatio;
-
-                        canvas.width = newWidth;
-                        canvas.height = newHeight;
-
-                        // Draw image on canvas
-                        ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-                        // Get image data URL with specified quality
-                        const outputMimeType = file.type.startsWith('image/') ? file.type : 'image/jpeg';
-                        const dataUrl = canvas.toDataURL(outputMimeType, quality);
-
-                        // Generate filename
-                        const fileExtension = outputMimeType.split('/')[1] || 'jpg';
-                        const fileName = `${uniqueBaseName}_${newWidth}px.${fileExtension}`;
-
-                        resolve({ dataUrl, fileName });
-                    } catch (e) {
-                        reject(e);
-                    } finally {
-                        // Clean up canvas
-                        canvas.width = canvas.height = 0;
-                    }
+                    URL.revokeObjectURL(url);
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const aspect = img.width / img.height;
+                    const newHeight = newWidth / aspect;
+                    canvas.width = newWidth;
+                    canvas.height = newHeight;
+                    ctx.drawImage(img, 0, 0, newWidth, newHeight);
+                    
+                    // Jika hapus metadata, cukup gunakan toDataURL (tidak bawa EXIF)
+                    const dataUrl = canvas.toDataURL(mimeType, quality);
+                    canvas.width = canvas.height = 0;
+                    resolve(dataUrl);
                 };
-
-                img.onerror = (error) => {
-                    if (objectURL) URL.revokeObjectURL(objectURL);
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
                     reject(new Error('Gagal memuat gambar'));
                 };
-
-                // Create object URL for image
-                objectURL = URL.createObjectURL(file);
-                img.src = objectURL;
+                img.src = url;
             });
         }
     </script>
